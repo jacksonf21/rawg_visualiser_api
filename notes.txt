@@ -3,3 +3,4 @@ db: rawg
 DROP AND RECREATE TABLES
 \i generate/reset.sql
 
+'test'
