@@ -18,7 +18,6 @@ router.get('/:id', (req, res) => {
 
   pool.query(query, (err, results) => {
     if (err) throw new Error
-    // watchlistSorter(results.rows)
     res.send(results.rows);
   })
 });
