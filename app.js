@@ -1,16 +1,20 @@
 const express = require('express');
-const { pool } = require('./database');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const app = express();
+const PORT = 8000;
 
-const app = express()
+const routesRoot = require('./routes/00-root');
 
-// app.use(cors())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
-const getUsers = (request, response) => {
-  pool.query('SELECT * FROM users', (err, results) => {
-    if (err) throw new Error
-    console.log(results.rows);
-  })
-};
+app.use('/', routesRoot);
+app.use('/users', routesRoot);
 
-getUsers();
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}.`);
+});
+
 
