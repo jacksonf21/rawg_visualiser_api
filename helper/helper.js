@@ -1,5 +1,7 @@
-const watchlistSorter = (watchlist) => {
 
+const thisYear = () => {
+  const date = new Date(Date.now());
+  return date.getFullYear();
 };
 
-module.exports = { watchlistSorter };
+module.exports = thisYear;

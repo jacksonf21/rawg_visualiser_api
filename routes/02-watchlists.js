@@ -3,7 +3,6 @@ const { pool } = require('../database');
 const { watchlistSorter } = require('../helper/helper')
 const router = express.Router();
 
-
 router.get('/:id', (req, res) => {
   const id = req.params.id;
   const query = {
