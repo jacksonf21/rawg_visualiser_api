@@ -3,7 +3,6 @@ const { pool } = require('../database');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  const id = req.params.id;
   const query = {
     text: 'SELECT * FROM users'
   }

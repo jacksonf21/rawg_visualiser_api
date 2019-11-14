@@ -1,3 +1,4 @@
+const axios = require('axios');
 
 const thisYear = () => {
   const date = new Date(Date.now());
@@ -28,6 +29,27 @@ const upcomingMonthDays = () => {
   return new Date(year, month, 0).getDate();
 };
 
+
+const rawgDataResponse = (res, url) => {
+  axios.get(url)
+    .then(resp => {
+      const data = dataFilter(resp);
+      res.send(data);
+    });
+}
+
+const dataFilter = (API_DATA) => {
+  const results = API_DATA.data.results;
+
+  return results.map(result => {
+    return {
+      name: result.name,
+      ratingsCount: result.ratings_count,
+      ratings: result.ratings,
+      rating: result.rating
+    };
+  });
+};
 console.log(upcomingMonthDays());
 
-module.exports = { thisYear, thisMonth, upcomingMonth, thisMonthDays, upcomingMonthDays };
+module.exports = { thisYear, thisMonth, upcomingMonth, thisMonthDays, upcomingMonthDays, rawgDataResponse };

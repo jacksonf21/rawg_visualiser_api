@@ -7,12 +7,14 @@ const PORT = 8000;
 const routesRoot = require('./routes/00-root');
 const routesUsers = require('./routes/01-users');
 const routesWatchlists = require('./routes/02-watchlists');
+const routesSearch = require('./routes/03-search');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use('/', routesRoot);
+app.use('/search', routesSearch);
 app.use('/users', routesUsers);
 app.use('/watchlists', routesWatchlists);
 
