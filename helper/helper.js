@@ -29,7 +29,6 @@ const upcomingMonthDays = () => {
   return new Date(year, month, 0).getDate();
 };
 
-
 const rawgDataResponse = (res, url) => {
   axios.get(url)
     .then(resp => {
@@ -50,6 +49,7 @@ const dataFilter = (API_DATA) => {
     };
   });
 };
+
 console.log(upcomingMonthDays());
 
 module.exports = { thisYear, thisMonth, upcomingMonth, thisMonthDays, upcomingMonthDays, rawgDataResponse };

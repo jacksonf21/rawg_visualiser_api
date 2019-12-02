@@ -1,8 +1,8 @@
-INSERT INTO users (first_name, last_name, email, password) 
+INSERT INTO users (first_name, last_name, email, uid) 
 VALUES 
-('Tessa', 'Hiddy', 'thiddy0@time.com', 'slbpTJ0'),
-('Claudelle', 'Medler', 'cmedler1@bizjournals.com', 'pvORp1k'),
-('Bryn', 'Schreurs', 'bschreurs2@ucsd.edu', 'VLxVi2');
+('Tessa', 'Hiddy', 'thiddy0@time.com', 'ASD123FSDV2X'),
+('Claudelle', 'Medler', 'cmedler1@bizjournals.com', 'DASU2BDFE'),
+('Bryn', 'Schreurs', 'bschreurs2@ucsd.edu', 'DASDBUBW2123B');
 
 INSERT INTO games (name, category, rating_number, rating_word)
 VALUES
