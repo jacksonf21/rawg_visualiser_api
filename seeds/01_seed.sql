@@ -11,9 +11,9 @@ VALUES
 ('Tents', 'Simulator', 2.55, 'Poor'),
 ('Warframe', 'Shooter', 4.65, 'Excellent');
 
-INSERT INTO watchlists (user_id)
+INSERT INTO watchlists (user_id, name)
 VALUES
-(1),(2),(3),(1);
+(1, 'arpgs'),(2, 'action'),(3, 'puzzles'),(1, 'jrpgs');
 
 INSERT INTO watchlists_games (watchlist_id, game_id)
 VALUES

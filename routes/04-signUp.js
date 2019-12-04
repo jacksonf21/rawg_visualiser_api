@@ -15,10 +15,7 @@ router.post('/', (req, res) => {
     values: userDetails
   }
 
-  console.log(query)
-
   pool.query(query, (err, results) => {
-    console.log(err)
     if (err) throw new Error
     res.send(results.rows);
   })

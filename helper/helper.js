@@ -42,6 +42,7 @@ const dataFilter = (API_DATA) => {
 
   return results.map(result => {
     return {
+      gameId: result.id,
       name: result.name,
       ratingsCount: result.ratings_count,
       ratings: result.ratings,
