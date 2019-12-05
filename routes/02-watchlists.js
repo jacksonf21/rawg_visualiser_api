@@ -1,71 +1,68 @@
 const express = require('express');
 const { pool } = require('../database');
 const router = express.Router();
+const { generateGameObject } = require('../helper/watchlistRatings');
+
 
 router.get('/:id', (req, res) => {
   const uid = req.params.id;
   const query = {
     text: `
-      SELECT * FROM USERS 
-      JOIN watchlists ON user_id = users.id 
-      WHERE u_id = $1;
+      SELECT * FROM watchlists
+      WHERE user_id = $1;
     `,
     values: [uid]
   }
 
   pool
     .query(query)
-    .then(result => {
-      res.send(result.rows)
-    })
+    .then(result => res.send(result.rows))
     .catch(error => console.log(error))
   
 });
 
-router.get('/:id/games', (req, res) => {
+router.get('/games/:watchlistId', (req, res) => {
+  const watchlistId = req.params.watchlistId
+  console.log(`success on ${watchlistId}`);
   const query = {
     text: `
-      SELECT * FROM watchlists 
-      JOIN watchlists_games ON watchlists.id = watchlist_id
-      JOIN games ON game_id = games.id
-      WHERE user_id = $1
+      SELECT * FROM watchlists_games 
+      JOIN games ON watchlists_games.game_id = games.id
+      JOIN ratings ON games.ratings_id = ratings.id
+      JOIN exceptional_ratings ON ratings.exceptional_id = exceptional_ratings.id
+      JOIN recommended_ratings ON ratings.recommended_id = recommended_ratings.id
+      JOIN meh_ratings ON ratings.meh_id = meh_ratings.id
+      JOIN skip_ratings ON ratings.skip_id = skip_ratings.id
+      WHERE watchlist_id = $1;
     `,
-    values: [id]
+    values: [watchlistId]
   }
 
-  pool.query(query, (err, results) => {
-    if (err) throw new Error
-    res.send(results.rows)
-  })
+  pool
+    .query(query)
+    .then(result => {
+      // console.log(JSON.stringify(generateGameObject(result.rows), null, 4))
+      res.send(generateGameObject(result.rows))
+    })
+    .catch(error => console.log(error))
+
 })
 
 router.post('/:id', (req, res) => {
   const uid = req.params.id;
   const watchlistName = req.body.watchlistName;
 
-  const idQuery = {
+  const Query = {
     text: `
-      SELECT * FROM users
-      WHERE u_id = $1
+      INSERT INTO watchlists (user_id, name) VALUES ($1, $2)
     `,
-    values: [uid]
+    values: [uid, watchlistName]
   }
 
   pool
-    .query(idQuery) 
-    .then(result => {
-      const id = result.rows[0].id;
-      const query = {
-        text: `
-          INSERT INTO watchlists (user_id, name) VALUES ($1, $2)
-        `,
-        values: [id, watchlistName]
-      }
-      pool.query(query)
+    .query(Query)
+    .then(res.send('success'))
     .catch(error => console.log(error))
-      .then(res.send('success'))
-      .catch(error => console.log(error))
-    })
 
 });
 
