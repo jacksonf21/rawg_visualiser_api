@@ -3,7 +3,6 @@ const { pool } = require('../database');
 const router = express.Router();
 const { generateGameObject } = require('../helper/watchlistRatings');
 
-
 router.get('/:id', (req, res) => {
   const uid = req.params.id;
   const query = {
@@ -16,6 +15,26 @@ router.get('/:id', (req, res) => {
 
   pool
     .query(query)
+    .then(result => res.send(result.rows))
+    .catch(error => console.log(error))
+  
+});
+
+router.get('/add/:id', (req, res) => {
+  const uid = req.params.id;
+
+  const watchlistQuery = {
+    text: `
+      SELECT * FROM watchlists 
+      JOIN watchlists_games ON watchlists.id = watchlists_games.watchlist_id 
+      JOIN games on watchlists_games.game_id = games.id 
+      WHERE user_id = $1;
+    `,
+    values: [uid]
+  }
+
+  pool
+    .query(watchlistQuery)
     .then(result => res.send(result.rows))
     .catch(error => console.log(error))
   
@@ -41,29 +60,45 @@ router.get('/games/:watchlistId', (req, res) => {
   pool
     .query(query)
     .then(result => {
-      // console.log(JSON.stringify(generateGameObject(result.rows), null, 4))
       res.send(generateGameObject(result.rows))
     })
     .catch(error => console.log(error))
 
 })
 
-router.post('/:id', (req, res) => {
+router.post('/:id', async (req, res) => {
   const uid = req.params.id;
   const watchlistName = req.body.watchlistName;
 
-  const Query = {
+  const watchlistQuery = {
+    text: `
+      SELECT * FROM watchlists
+      WHERE user_id = $1;
+    `,
+    values: [uid]
+  }
+
+  const insertQuery = {
     text: `
       INSERT INTO watchlists (user_id, name) VALUES ($1, $2)
     `,
     values: [uid, watchlistName]
   }
 
-  pool
-    .query(Query)
-    .then(res.send('success'))
-    .catch(error => console.log(error))
+  try {
+    const watchlists = await pool.query(watchlistQuery);
 
+    console.log(watchlists.rows)
+
+  } catch(error) {
+    console.log(error)
+  }
+    
+    // await pool
+    // .query(query)
+    // .then(res.send('success'))
+    // .catch(error => console.log(error))
+  
 });
 
 module.exports = router;

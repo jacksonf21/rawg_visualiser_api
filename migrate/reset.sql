@@ -51,7 +51,7 @@ CREATE TABLE ratings (
 CREATE TABLE games (
   id SERIAL PRIMARY KEY NOT NULL,
   rawg_id INTEGER NOT NULL,
-  name VARCHAR (255) NOT NULL,
+  game_name VARCHAR (255) NOT NULL,
   rating DECIMAL,
   ratings_id INTEGER REFERENCES ratings(id) ON DELETE CASCADE,
   ratings_count INTEGER,
@@ -61,7 +61,7 @@ CREATE TABLE games (
 CREATE TABLE watchlists (
   id SERIAL PRIMARY KEY NOT NULL,
   user_id VARCHAR (255) REFERENCES users(u_id) ON DELETE CASCADE,
-  name VARCHAR (255) NOT NULL
+  watchlist_name VARCHAR (255) NOT NULL
 );
 
 CREATE TABLE watchlists_games (

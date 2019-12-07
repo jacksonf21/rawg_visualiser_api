@@ -24,14 +24,14 @@ INSERT INTO ratings (exceptional_id, recommended_id, meh_id, skip_id)
 VALUES
 (1,1,1,1),(2,2,2,2),(3,3,3,3),(4,4,4,4);
 
-INSERT INTO games (rawg_id, name, rating, ratings_id, ratings_count)
+INSERT INTO games (rawg_id, game_name, rating, ratings_id, ratings_count)
 VALUES
 (1804, 'Space Jam', 4.55, 1, 800),
 (903, 'GTA V', 3.95, 2, 590),
 (10, 'Tents', 2.55, 3, 100),
 (1094, 'Warframe', 4.65, 4, 769);
 
-INSERT INTO watchlists (user_id, name)
+INSERT INTO watchlists (user_id, watchlist_name)
 VALUES
 ('PsXzqO4dCMMqIKTqj7xT4UzJzwc2', 'arpgs'),('DASU2BDFE', 'action'),('DASDBUBW2123B', 'puzzles'),('PsXzqO4dCMMqIKTqj7xT4UzJzwc2', 'jrpgs');
 

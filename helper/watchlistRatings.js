@@ -12,7 +12,7 @@ const generateGameObject = (data) => {
 
     let tempObj = {
       gameId: game.rawg_id,
-      name: game.name,
+      name: game.game_name,
       ratingsCount: game.ratings_count,
       ratings: ratings,
       rating: Number(game.rating)
