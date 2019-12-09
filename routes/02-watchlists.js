@@ -2,6 +2,7 @@ const express = require('express');
 const { pool } = require('../database');
 const router = express.Router();
 const { generateGameObject } = require('../helper/watchlistRatings');
+const { createCategoryQuery, createRatingQuery, createGameQuery, createWatchlistGameQuery } = require('../queries/watchlistQuery');
 
 router.get('/:id', (req, res) => {
   const uid = req.params.id;
@@ -42,7 +43,6 @@ router.get('/add/:id', (req, res) => {
 
 router.get('/games/:watchlistId', (req, res) => {
   const watchlistId = req.params.watchlistId
-  console.log(`success on ${watchlistId}`);
   const query = {
     text: `
       SELECT * FROM watchlists_games 
@@ -64,41 +64,66 @@ router.get('/games/:watchlistId', (req, res) => {
     })
     .catch(error => console.log(error))
 
-})
+});
 
-router.post('/:id', async (req, res) => {
-  const uid = req.params.id;
-  const watchlistName = req.body.watchlistName;
+router.post('/add/:watchlistId', async (req, res) => {
+  const watchlistId = req.params.watchlistId;
+  const gameData = req.body
+  const { gameId, name, ratingsCount, rating } = gameData
 
-  const watchlistQuery = {
-    text: `
-      SELECT * FROM watchlists
-      WHERE user_id = $1;
-    `,
-    values: [uid]
-  }
+  console.log(gameData);
 
-  const insertQuery = {
-    text: `
-      INSERT INTO watchlists (user_id, name) VALUES ($1, $2)
-    `,
-    values: [uid, watchlistName]
-  }
-
-  try {
-    const watchlists = await pool.query(watchlistQuery);
-
-    console.log(watchlists.rows)
-
-  } catch(error) {
-    console.log(error)
-  }
-    
-    // await pool
-    // .query(query)
-    // .then(res.send('success'))
-    // .catch(error => console.log(error))
+  const exceptionalQuery = createCategoryQuery('exc', 'exceptional_ratings', 0, gameData)
+  const recommendedQuery = createCategoryQuery('rec', 'recommended_ratings', 1, gameData)
+  const mehQuery = createCategoryQuery('meh', 'meh_ratings', 2, gameData)
+  const skipQuery = createCategoryQuery('skip', 'skip_ratings', 3, gameData)
   
+  
+  try {
+    await pool.query('BEGIN')
+
+    const exceptionalRating = await pool.query(exceptionalQuery)
+    const recommendedRating = await pool.query(recommendedQuery)
+    const mehRating = await pool.query(mehQuery)
+    const skipRating = await pool.query(skipQuery)
+
+    const exceptionalId = exceptionalRating.rows[0].id
+    const recommendedId = recommendedRating.rows[0].id
+    const mehId = mehRating.rows[0].id
+    const skipId = skipRating.rows[0].id
+    
+    const ratingQuery = createRatingQuery(exceptionalId, recommendedId, mehId, skipId)
+
+    const ratings = await pool.query(ratingQuery)
+    const ratingId = ratings.rows[0].id  
+
+    console.log(gameId, name, rating, ratingId, ratingsCount)
+
+    const gameQuery = createGameQuery(gameId, name, rating, ratingId, ratingsCount)
+
+    console.log(gameQuery);
+    
+    const game = await pool.query(gameQuery)
+    console.log(game);
+
+    const gameQueryId = game.rows[0].id
+
+    console.log('gameQueryId', gameQueryId)
+
+    const watchlistsGamesQuery = createWatchlistGameQuery(watchlistId, gameQueryId);
+    
+    await pool.query(watchlistsGamesQuery);
+    await pool.query('COMMIT')
+
+    res.send('success');
+  
+  } catch (e) {
+  
+    await pool.query('ROLLBACK')
+    res.send('fail')
+  
+  }
+
 });
 
 module.exports = router;
