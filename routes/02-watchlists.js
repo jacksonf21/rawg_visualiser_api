@@ -66,18 +66,57 @@ router.get('/games/:watchlistId', (req, res) => {
 
 });
 
+router.post('/:id', (req, res) => {
+  const uid = req.params.id;
+  const watchlistName = req.body.watchlistName
+
+  const query = {
+    text: `
+      INSERT INTO watchlists (user_id, watchlist_name)
+      VALUES ($1, $2)
+    `,
+    values: [uid, watchlistName]
+  }
+
+  pool
+    .query(query)
+    .then(result => res.send(result.rows))
+    .catch(error => console.log(error))
+  
+});
+
 router.post('/add/:watchlistId', async (req, res) => {
   const watchlistId = req.params.watchlistId;
-  const gameData = req.body
-  const { gameId, name, ratingsCount, rating } = gameData
+  const gameData = req.body;
+  const { gameId, name, ratingsCount, rating } = gameData;
 
-  console.log(gameData);
+  const exceptionalQuery = createCategoryQuery({
+    prefix: 'exc', 
+    tableName: 'exceptional_ratings', 
+    index: 0, 
+    data: gameData
+  });
 
-  const exceptionalQuery = createCategoryQuery('exc', 'exceptional_ratings', 0, gameData)
-  const recommendedQuery = createCategoryQuery('rec', 'recommended_ratings', 1, gameData)
-  const mehQuery = createCategoryQuery('meh', 'meh_ratings', 2, gameData)
-  const skipQuery = createCategoryQuery('skip', 'skip_ratings', 3, gameData)
-  
+  const recommendedQuery = createCategoryQuery({
+    prefix: 'rec', 
+    tableName: 'recommended_ratings', 
+    index: 1, 
+    data: gameData
+  });
+
+  const mehQuery = createCategoryQuery({
+    prefix: 'meh', 
+    tableName: 'meh_ratings', 
+    index: 2, 
+    data: gameData
+  });
+
+  const skipQuery = createCategoryQuery({
+    prefix: 'skip', 
+    tableName: 'skip_ratings', 
+    index: 3, 
+    data: gameData
+  });
   
   try {
     await pool.query('BEGIN')
@@ -92,23 +131,27 @@ router.post('/add/:watchlistId', async (req, res) => {
     const mehId = mehRating.rows[0].id
     const skipId = skipRating.rows[0].id
     
-    const ratingQuery = createRatingQuery(exceptionalId, recommendedId, mehId, skipId)
+    const ratingQuery = createRatingQuery({
+      excId: exceptionalId, 
+      recId: recommendedId, 
+      mehId: mehId, 
+      skipId: skipId
+    });
 
     const ratings = await pool.query(ratingQuery)
     const ratingId = ratings.rows[0].id  
 
-    console.log(gameId, name, rating, ratingId, ratingsCount)
+    const gameQuery = createGameQuery({
+      rawgId: gameId, 
+      gameName: name, 
+      rating: rating, 
+      ratingsId: ratingId, 
+      ratingsCount: ratingsCount
+    })
 
-    const gameQuery = createGameQuery(gameId, name, rating, ratingId, ratingsCount)
-
-    console.log(gameQuery);
-    
     const game = await pool.query(gameQuery)
-    console.log(game);
 
     const gameQueryId = game.rows[0].id
-
-    console.log('gameQueryId', gameQueryId)
 
     const watchlistsGamesQuery = createWatchlistGameQuery(watchlistId, gameQueryId);
     
