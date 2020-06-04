@@ -36,7 +36,10 @@ router.get('/add/:id', (req, res) => {
 
   pool
     .query(watchlistQuery)
-    .then(result => res.send(result.rows))
+    .then(result => {
+      res.send(result.rows)
+      console.log(result.rows)
+    })
     .catch(error => console.log(error))
   
 });
